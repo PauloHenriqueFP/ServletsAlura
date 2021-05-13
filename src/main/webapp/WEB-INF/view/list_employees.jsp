@@ -9,8 +9,9 @@
 </head>
 	
 	<body>
+		<c:import url="logout.jsp"/>
 		User: ${ authenticatedUser.login } <br> <br>
-	
+		<a href="entry?action=CreateEmployeeForm"> Create Employee</a> <br> <br> <br>
 		Employees:
 		
 		<c:if test="${not empty employees}">
