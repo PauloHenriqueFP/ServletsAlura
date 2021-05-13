@@ -7,7 +7,10 @@
 <meta charset="UTF-8">
 <title>Insert title here</title>
 </head>
+	
 	<body>
+		User: ${ authenticatedUser.login } <br> <br>
+	
 		Employees:
 		
 		<c:if test="${not empty employees}">

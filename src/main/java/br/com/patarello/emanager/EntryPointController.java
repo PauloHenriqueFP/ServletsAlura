@@ -9,6 +9,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import br.com.patarello.emanager.models.Action;
 
@@ -20,6 +21,26 @@ public class EntryPointController extends HttpServlet {
 	protected void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		
 		String action = req.getParameter("action");
+		
+		/*
+		 * Check if the user is authenticated
+		 */
+		HttpSession session = req.getSession();
+		
+		boolean isUserAuthenticated = (session.getAttribute("authenticatedUser") != null);
+		
+		boolean isResourceProtected = !(action.equals("Login")  || action.equals("LoginForm")); 
+		
+		if(!isUserAuthenticated && isResourceProtected) {
+			
+			res.sendRedirect("entry?action=LoginForm");
+			return;
+		}
+		
+		/*
+		 * User is authenticated
+		 */
+		
 		String className = "br.com.patarello.emanager.actions." + action; 
 		Class<?> clazz = null;
 		try {
