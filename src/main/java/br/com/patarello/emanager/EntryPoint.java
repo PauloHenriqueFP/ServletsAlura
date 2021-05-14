@@ -3,43 +3,30 @@ package br.com.patarello.emanager;
 import java.io.IOException;
 import java.util.Objects;
 
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import br.com.patarello.emanager.models.Action;
 
-@SuppressWarnings("serial")
-@WebServlet("/entry")
-public class EntryPointController extends HttpServlet {
+public class EntryPoint implements Filter {
 	
 	@Override
-	protected void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
+			throws IOException, ServletException {
+		
+		System.out.println("EntryPoint");
+
+
+		HttpServletResponse res = (HttpServletResponse) servletResponse;
+		HttpServletRequest req = (HttpServletRequest) servletRequest;
 		
 		String action = req.getParameter("action");
-		
-		/*
-		 * Check if the user is authenticated
-		 */
-		HttpSession session = req.getSession();
-		
-		boolean isUserAuthenticated = (session.getAttribute("authenticatedUser") != null);
-		
-		boolean isResourceProtected = !(action.equals("Login")  || action.equals("LoginForm")); 
-		
-		if(!isUserAuthenticated && isResourceProtected) {
-			
-			res.sendRedirect("entry?action=LoginForm");
-			return;
-		}
-		
-		/*
-		 * User is authenticated
-		 */
 		
 		String className = "br.com.patarello.emanager.actions." + action; 
 		Class<?> clazz = null;
@@ -54,14 +41,14 @@ public class EntryPointController extends HttpServlet {
 		}
 		
 		String whatToDo = null;
-		if(!Objects.isNull(clazz)) {
+		if( !Objects.isNull(clazz) ) {
 			try {
 				
 				@SuppressWarnings("deprecation")
 				Action myAction = (Action) clazz.newInstance();
 				whatToDo = myAction.execute(req, res);
 				
-			} catch (InstantiationException | IllegalAccessException e) {
+			} catch ( InstantiationException | IllegalAccessException e ) {
 				
 				throw new ServletException(e.getMessage());
 				
@@ -72,7 +59,7 @@ public class EntryPointController extends HttpServlet {
 		
 		if ( ResponseTypeAndAddress[0].equals("redirect") ) { // do redirect
 			
-			res.sendRedirect(ResponseTypeAndAddress[1]); // address
+			res.sendRedirect(ResponseTypeAndAddress[1]); // URL address
 			
 		}
 		
@@ -82,6 +69,8 @@ public class EntryPointController extends HttpServlet {
 			rd.forward(req, res);
 			
 		}
+		
+
 		
 	}
 	
